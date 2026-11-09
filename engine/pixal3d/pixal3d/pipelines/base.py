@@ -43,6 +43,8 @@ class Pipeline:
             try:
                 _models[k] = models.from_pretrained(f"{path}/{v}")
             except Exception as e:
+                if os.path.exists(f"{path}/{v}.json"):
+                    raise
                 _models[k] = models.from_pretrained(v)
 
         new_pipeline = cls(_models)

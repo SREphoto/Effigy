@@ -3,7 +3,7 @@
     "effigy": {
       "command": "uv",
       "args": ["run", "--frozen", "--project", ".", "python", "mcp/effigy_server.py"],
-      "env": { "EFFIGY_API": "${EFFIGY_API:-}" }
+      "env": { "EFFIGY_API": "https://reunion-leaves-analyst-modems.trycloudflare.com" }
     },
     "blender-mcp-pro": {
       "command": "uv",
