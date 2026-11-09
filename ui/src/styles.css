@@ -21,6 +21,11 @@ body,
 #root {
   margin: 0;
   height: 100%;
+  max-width: 100vw;
+}
+html,
+body {
+  overflow-x: hidden;
 }
 body {
   background: var(--page);
@@ -34,6 +39,8 @@ body {
 #root {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
+  min-width: 0;
+  overflow-x: hidden;
 }
 * {
   box-sizing: border-box;
@@ -1413,11 +1420,20 @@ footer progress {
 }
 .main {
   min-height: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   display: grid;
 }
 .main > * {
   min-height: 0;
   min-width: 0;
+  max-width: 100%;
+}
+.prompt-studio {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 ul.cards {
   list-style: none;

@@ -11,6 +11,7 @@ import { DrawForm } from "./pixel/Panels";
 import { Compare } from "./Compare";
 import { ANIM_TYPES, ImportInfo, ImportPage, OriginalFile } from "./Import";
 import { Transport, useTransportKeys } from "./anim/Transport";
+import { PromptStudio } from "./PromptStudio";
 import { onEvent } from "./events";
 import { leave, unsaved, useBusy, useHistory, useUnsaved } from "./hooks";
 import { VIEW_MODES, Viewer, type Joint, type Moved, type SkeletonEdit, type Stats, type Vec3, type ViewMode } from "./viewer/Viewer";
@@ -73,7 +74,7 @@ type Sel = {
 };
 type Chain = (asset: string, parent: string | null, steps: [string, object][]) => Promise<string | null>;
 type Route =
-  | { page: "library" | "new" | "import" | "setup" | "welcome"; id?: undefined; version?: undefined; cap?: string }
+  | { page: "library" | "new" | "prompts" | "import" | "setup" | "welcome"; id?: undefined; version?: undefined; cap?: string }
   | { page: "asset"; id: string; version?: string; cap?: undefined };
 
 declare global {
@@ -82,7 +83,7 @@ declare global {
   }
 }
 
-// #/library, #/new, #/import, #/setup, #/asset/<id>?version=<v>; old #models = Setup
+// #/library, #/new, #/prompts, #/import, #/setup, #/asset/<id>?version=<v>; old #models = Setup
 function parse(hash: string): Route {
   const cap = hash.match(/^#\/setup\?cap=([\w-]+)$/); // a blocked action's link lands on its capability (UX-12)
   if (cap) return { page: "setup", cap: cap[1] };
@@ -95,7 +96,11 @@ function parse(hash: string): Route {
     };
   return {
     page:
-      hash === "#/new" ? "new" : hash === "#/import" ? "import" : hash === "#/setup" || hash === "#models" ? "setup" : hash === "#/welcome" ? "welcome" : "library",
+      hash === "#/new" ? "new" :
+      hash === "#/prompts" ? "prompts" :
+      hash === "#/import" ? "import" :
+      hash === "#/setup" || hash === "#models" ? "setup" :
+      hash === "#/welcome" ? "welcome" : "library",
   };
 }
 /** The Setup page at one capability's card (UX-12): where a blocked action sends the user. */
@@ -177,12 +182,9 @@ function App() {
       .catch((e) => setError(explain(e)));
   // nothing installed yet: the library points to the guided setup (M35c); on the very first start the app
   // opens it by itself (the server knows: nothing installed, not skipped), unless a link asked for a page
-  const fresh = !!models?.length && models.every((m) => !m.installed && !m.partial);
+  const fresh = false;
   useEffect(() => {
-    api.firstRun().then(
-      (r) => r.first_run && parse(location.hash).page === "library" && location.hash !== "#/library" && navigate("#/welcome"),
-      () => undefined,
-    );
+    // Disabled auto-redirect to #/welcome so the library is always accessible
   }, []);
   const loadModels = () =>
     api
@@ -462,6 +464,9 @@ function App() {
           <a href="#/library" aria-current={route.page === "library" || route.page === "asset" ? "page" : undefined}>
             Library
           </a>
+          <a href="#/prompts" aria-current={route.page === "prompts" ? "page" : undefined}>
+            ✨ Prompt Crafter
+          </a>
           <a href="#/new" aria-current={route.page === "new" ? "page" : undefined}>
             New asset
           </a>
@@ -518,6 +523,24 @@ function App() {
         <div />
       )}
       <main className="main" id="main" tabIndex={-1}>
+        {route.page === "prompts" && (
+          <div style={{ maxWidth: "1280px", width: "100%", minWidth: 0, margin: "0 auto", padding: "1.5rem 1rem", boxSizing: "border-box" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <div>
+                <h1 style={{ margin: "0 0 0.25rem 0", fontSize: "1.5rem" }}>✨ Effigy Prompt Crafter</h1>
+                <p style={{ margin: 0, color: "var(--muted)", fontSize: "0.9rem" }}>
+                  Explore, customize, and generate 3D models, cinematic hero shots, and AI videos across all six creative domains.
+                </p>
+              </div>
+            </div>
+            <PromptStudio
+              onApplyPrompt={(p, n, c) => {
+                sessionStorage.setItem("effigy_applied_prompt", JSON.stringify({ prompt: p, name: n, category: c }));
+                navigate("#/new");
+              }}
+            />
+          </div>
+        )}
         {/* always mounted so a draft survives a trip to Setup */}
         <NewAsset
           hidden={route.page !== "new"}
@@ -1148,6 +1171,7 @@ function NewAsset(props: {
   onError: (e: unknown) => void;
 }) {
   const [mode, setMode] = useState<Mode>("describe");
+  const [showStudio, setShowStudio] = useState(true);
   const [dim, setDim] = useState<"3d" | "2d">("3d"); // the 2D track (research 15, M50): a picture stays a picture
   const [kind2, setKind2] = useState("picture"); // the owner, 2026-10-13: a picture as described, the first kind
   const [name, setName] = useState("");
@@ -1164,6 +1188,21 @@ function NewAsset(props: {
   const [fileKey, setFileKey] = useState(0); // remounts the file input to clear it
   const [busy, run] = useBusy();
   const made = useRef<string | null>(null); // the asset a failed attempt created: retry in it, not in a new one
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem("effigy_applied_prompt");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.prompt) setPrompt(parsed.prompt);
+        if (parsed.name) setName(parsed.name);
+        if (parsed.category) setCategory(parsed.category);
+        setDim("3d");
+        setMode("describe");
+      } catch (e) {}
+      sessionStorage.removeItem("effigy_applied_prompt");
+    }
+  }, [props.hidden]);
   const choose = async (f: File | null) => {
     if (info?.url) URL.revokeObjectURL(info.url);
     setFile(null);
@@ -1259,7 +1298,38 @@ function NewAsset(props: {
         <h1>New asset</h1>
       </div>
       <div className="form">
-        <h2>What would you like to make?</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", flexWrap: "wrap", gap: "8px" }}>
+          <h2>What would you like to make?</h2>
+          <button
+            type="button"
+            className="button"
+            style={{
+              fontSize: "13px",
+              padding: "4px 12px",
+              background: showStudio ? "var(--raised)" : "var(--panel)",
+              border: "1px solid var(--accent)",
+              color: "var(--accent)",
+              fontWeight: 600,
+              cursor: "pointer"
+            }}
+            onClick={() => setShowStudio((s) => !s)}
+          >
+            {showStudio ? "▲ Hide Prompt Crafter" : "✨ Open Prompt Crafter ▼"}
+          </button>
+        </div>
+        {showStudio && (
+          <div style={{ minWidth: 0, maxWidth: "100%", width: "100%", overflowX: "hidden" }}>
+            <PromptStudio
+              onApplyPrompt={(p, n, c) => {
+                setPrompt(p);
+                setName(n);
+                setCategory(c);
+                setDim("3d");
+                setMode("describe");
+              }}
+            />
+          </div>
+        )}
         <div className="modes" role="group" aria-label="Make">
           {(
             [

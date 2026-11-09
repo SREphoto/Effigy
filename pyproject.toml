@@ -40,6 +40,8 @@ ml = [
     "kornia>=0.8",
     "einops>=0.8",
     "easydict>=1.10",  # TRELLIS.2/Pixal3D samplers; LGPL-3.0, see licenses.yaml
+    "zstandard>=0.23",  # o_voxel/vxz
+    "plyfile>=1.0",  # o_voxel/ply
     "onnxruntime>=1.20",  # CPU: DWPose for the A-pose gate (M16); never next to onnxruntime-gpu
 ]
 # .venv-skin: UV_PROJECT_ENVIRONMENT=.venv-skin uv sync --frozen --group skin

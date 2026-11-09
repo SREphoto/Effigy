@@ -36,6 +36,11 @@ def blender_exe() -> Path:
     """Where Blender is (or will be after install()); never downloads."""
     if env := os.environ.get("EFFIGY_BLENDER"):
         return Path(env)
+    if platform.system() == "Darwin":
+        app = Path("/Applications/Blender.app/Contents/MacOS/Blender")
+        if app.is_file():
+            return app
+        return Path(shutil.which("blender") or "/Applications/Blender.app/Contents/MacOS/Blender")
     name, _, exe = PINNED[platform.system()]
     return ROOT / "blender" / name.removesuffix(".zip").removesuffix(".tar.xz") / exe
 

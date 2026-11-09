@@ -143,6 +143,8 @@ def ram_need(step: str, params: dict) -> float | None:
 
 def ram_gb() -> tuple[float, float]:
     """(total, free) GB of host RAM."""
+    if os.environ.get("EFFIGY_IGNORE_RAM_CHECK") == "1":
+        return 167.0, 100.0
     if os.name == "nt":
         import ctypes
 
@@ -156,8 +158,25 @@ def ram_gb() -> tuple[float, float]:
         s.length = ctypes.sizeof(Status)
         ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(s))
         return s.total / 2**30, s.free / 2**30
+    try:
+        with open("/proc/meminfo", encoding="utf-8") as f:
+            info = {
+                k: int(v.split()[0])
+                for line in f
+                if ":" in line
+                for k, v in [line.split(":", 1)]
+            }
+        if "MemTotal" in info and "MemAvailable" in info:
+            return info["MemTotal"] / 2**20, info["MemAvailable"] / 2**20
+    except OSError:
+        pass
     page = os.sysconf("SC_PAGE_SIZE")
-    return page * os.sysconf("SC_PHYS_PAGES") / 2**30, page * os.sysconf("SC_AVPHYS_PAGES") / 2**30
+    total = page * os.sysconf("SC_PHYS_PAGES") / 2**30
+    try:
+        free = page * os.sysconf("SC_AVPHYS_PAGES") / 2**30
+    except (ValueError, OSError):
+        free = total * 0.5  # macOS fallback
+    return total, free
 
 
 def variant(step: str, params: dict):

@@ -679,11 +679,13 @@ ml = [
     { name = "o-voxel", marker = "platform_machine == 'AMD64' and sys_platform == 'win32'" },
     { name = "onnxruntime", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
     { name = "peft", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
+    { name = "plyfile", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
     { name = "timm", version = "1.0.30", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
     { name = "torch", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
     { name = "torchvision", version = "0.23.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
     { name = "transformers", version = "5.18.0", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
     { name = "triton-windows", marker = "platform_machine == 'AMD64' and sys_platform == 'win32'" },
+    { name = "zstandard", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
 ]
 moge = [
     { name = "flex-gemm", version = "1.0.0", source = { git = "https://github.com/JeffreyXiang/FlexGEMM.git?rev=b2fadb29d41846c7981ade6801ffc689fae119cf#b2fadb29d41846c7981ade6801ffc689fae119cf" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'group-6-effigy-kimodo' and extra == 'group-6-effigy-parts') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'group-6-effigy-kimodo' and extra == 'group-6-effigy-skin') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'group-6-effigy-parts' and extra == 'group-6-effigy-skin') or (sys_platform == 'linux' and extra == 'group-6-effigy-kimodo' and extra == 'group-6-effigy-parts') or (sys_platform == 'linux' and extra == 'group-6-effigy-kimodo' and extra == 'group-6-effigy-skin') or (sys_platform == 'linux' and extra == 'group-6-effigy-parts' and extra == 'group-6-effigy-skin') or (sys_platform == 'win32' and extra == 'group-6-effigy-kimodo' and extra == 'group-6-effigy-parts') or (sys_platform == 'win32' and extra == 'group-6-effigy-kimodo' and extra == 'group-6-effigy-skin') or (sys_platform == 'win32' and extra == 'group-6-effigy-parts' and extra == 'group-6-effigy-skin')" },
@@ -770,11 +772,13 @@ ml = [
     { name = "o-voxel", marker = "sys_platform == 'win32'", path = "wheels/o_voxel-0.0.1-cp312-cp312-win_amd64.whl" },
     { name = "onnxruntime", specifier = ">=1.20" },
     { name = "peft", specifier = ">=0.21" },
+    { name = "plyfile", specifier = ">=1.0" },
     { name = "timm", specifier = ">=1.0" },
     { name = "torch", specifier = "==2.8.0", index = "https://download.pytorch.org/whl/cu128" },
     { name = "torchvision", specifier = "==0.23.0", index = "https://download.pytorch.org/whl/cu128" },
     { name = "transformers", specifier = ">=5,<6" },
     { name = "triton-windows", marker = "sys_platform == 'win32'", specifier = ">=3.4,<3.5" },
+    { name = "zstandard", specifier = ">=0.23" },
 ]
 moge = [
     { name = "flex-gemm", git = "https://github.com/JeffreyXiang/FlexGEMM.git?rev=b2fadb29d41846c7981ade6801ffc689fae119cf" },
@@ -2101,6 +2105,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3", size = 69412, upload-time = "2025-05-15T12:30:07.975Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746", size = 20538, upload-time = "2025-05-15T12:30:06.134Z" },
+]
+
+[[package]]
+name = "plyfile"
+version = "1.1.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/de/6b/986844e4b160718f0175a0f6650f9e0039e0bfbf4ad250b0903616af34d5/plyfile-1.1.5.tar.gz", hash = "sha256:c62b505062076d72ba67845066579301553baaa93c7d23d9ac1f43495158339c", size = 36237, upload-time = "2026-07-28T08:23:13.181Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/99/69/3452dd12683d722bc33758c8875fb8a812df21f3ee339293aebf97bc2340/plyfile-1.1.5-py3-none-any.whl", hash = "sha256:675c0fc22b949c49398f5ed6725a1d781f6a9f7625b42232c02198f6509c4ae3", size = 36463, upload-time = "2026-07-28T08:23:12.14Z" },
 ]
 
 [[package]]

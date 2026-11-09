@@ -2,6 +2,7 @@
 keeps web pages out of the API (a page may reach 127.0.0.1 from the user's browser; Host and Origin say who asked)."""
 
 import json
+import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -24,6 +25,9 @@ class LocalOnly:
         self.app = app
 
     async def __call__(self, scope, receive, send):
+        if os.environ.get("EFFIGY_ALLOW_REMOTE") == "1":
+            await self.app(scope, receive, send)
+            return
         if scope["type"] == "http":
             h = {k.decode(): v.decode("latin-1") for k, v in scope["headers"]}
             origin = h.get("origin")

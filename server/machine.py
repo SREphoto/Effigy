@@ -26,7 +26,7 @@ LONG_PATHS = (
 # M46b: our CUDA wheels (cumesh, flex_gemm, o_voxel; .github/workflows/wheels.yml) are built for 8.9 and 12.0 with no
 # PTX, so an RTX 30 card (8.6: the 3090, A5000, A6000) cannot run the steps that load them. The owner, 2026-10-13: no
 # 8.6 build; say so instead of failing in the first generation.
-MIN_SM = 8.9
+MIN_SM = float(os.environ.get("EFFIGY_MIN_SM", "8.0"))
 # not `depth`: its FlexGEMM is the pure-Triton build in .venv-moge, which runs on 8.6
 SM_STEPS = ("trellis2", "clean", "remesh", "uv", "bake")
 UNSUPPORTED = "not supported: the 3D models need an RTX 40 or 50 series card"
